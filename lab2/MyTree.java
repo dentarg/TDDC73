@@ -8,12 +8,20 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
-public class MyTree extends JTree implements MyWidget {
-	private MyDirector dir;
+public class MyTree extends JTree {
+
+    private class BookInfo {
+        public String nodeName;
+
+        public BookInfo(String name) {
+            nodeName = name;
+        }
+
+        public String toString() {
+            return nodeName;
+        }
+    }
 	
-	public void changed() {
-		dir.WidgetChanged(this);
-	}
 	
 	public MyTree(DefaultMutableTreeNode top) {
         super(top);
@@ -38,3 +46,5 @@ public class MyTree extends JTree implements MyWidget {
         }
 	}
 }
+
+

@@ -6,12 +6,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
-public class MyTextField extends JTextField implements MyWidget {
-	private MyDirector dir;
-	
-	public void changed() {
-		dir.WidgetChanged(this);
-	}
+public class MyTextField extends JTextField {
 
 	public MyTextField() {
 		// TODO Auto-generated constructor stub
