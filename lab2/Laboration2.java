@@ -41,7 +41,8 @@ public class Laboration2 {
         c2.weighty = 0.5;
         c2.gridx = 0;
         c2.gridy = 1;
-        pane.add(tree, c2);
+        JScrollPane treeView = new JScrollPane(tree);
+        pane.add(treeView, c2);
     }
     
     private static void createAndShowGUI() {
@@ -56,8 +57,8 @@ public class Laboration2 {
         frame.setLocation(x-x/2, y-y/2);
         
         //frame.setSize(x, y);
-        frame.setMinimumSize(new 	Dimension(400,600));
-        frame.setPreferredSize(new 	Dimension(400,600));
+        //frame.setMinimumSize(new 	Dimension(400,600));
+        //frame.setPreferredSize(new 	Dimension(400,600));
         
         //Set up the content pane.
         Container pane = frame.getContentPane();
