@@ -8,43 +8,38 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
+@SuppressWarnings("serial")
 public class MyTree extends JTree {
-
-    private class BookInfo {
-        public String nodeName;
-
-        public BookInfo(String name) {
-            nodeName = name;
-        }
-
-        public String toString() {
-            return nodeName;
-        }
-    }
 	
+	private DefaultMutableTreeNode root;
+	private Vector<String> nodes;
 	
-	public MyTree(DefaultMutableTreeNode top) {
-        super(top);
-		DefaultMutableTreeNode a = new DefaultMutableTreeNode("aaa");
-		DefaultMutableTreeNode b = new DefaultMutableTreeNode("bbb");
-		DefaultMutableTreeNode c = new DefaultMutableTreeNode("ccc");
-		top.add(a);
-		top.add(b);
-		top.add(c);
-		generateNodes(a,3,1);
-		generateNodes(b,4,2);
-		generateNodes(c,2,3);
+	public MyTree(Vector<String> nodes, DefaultMutableTreeNode root) {
+        super(root);
+        this.root = root;
+        this.nodes = nodes;
+        createTopNode("abc");
+        createTopNode("xyz");
+        createTopNode("jkl");
 	}
+	
+	public void createTopNode(String name) {
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(name);
+		root.add(node);
+		nodes.add(name);
+		generateNodes(node,2,2);
+	}
+	
 	public void generateNodes(DefaultMutableTreeNode node, int childrens, 
 			int generations) {
         for(int i = 0; i < childrens; i++) {
-        	DefaultMutableTreeNode child = new DefaultMutableTreeNode(node.toString() + i);
+        	String str = new String(node.toString() + i);
+        	DefaultMutableTreeNode child = new DefaultMutableTreeNode(str);
         	node.add(child);
+        	nodes.add(str);
         	if(generations > 0) {
         		generateNodes(child,childrens,--generations);
         	}
         }
 	}
 }
-
-

@@ -1,30 +1,38 @@
 package lab2;
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.util.Iterator;
+import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 @SuppressWarnings("serial")
-public class Laboration2 extends JFrame {
+public class Laboration2 extends JFrame implements DocumentListener, TreeSelectionListener {
 	
     private MyTextField searchField;
     private DefaultMutableTreeNode top;
     private MyTree tree;
     private JScrollPane treeView;
+    private Vector<String> nodes;
 
     public Laboration2() {
     	initComponents();
         
         // Field stuff
         searchField.setText("/");
+        searchField.getDocument().addDocumentListener(this);
 
         // Tree stuff
         tree.getSelectionModel().setSelectionMode
@@ -33,18 +41,63 @@ public class Laboration2 extends JFrame {
         tree.setExpandsSelectedPaths(true);
 
         // Listen for when the selection changes
-        MyTreeSelectionListener tsl = 
-        	new MyTreeSelectionListener(tree, searchField);
-        tree.addTreeSelectionListener(tsl);
+        tree.addTreeSelectionListener(this);
         
         // test
-        tree.setSelectionPath(new TreePath(top));
+        //tree.setSelectionPath(new TreePath(top));
     }
     
+    // search our tree
+    public void search() {
+		String searchStr = searchField.getText();
+		Iterator<String> i = nodes.iterator();
+		while(i.hasNext()){
+			String nodeName = i.next();
+			System.out.println("nodeName: " + nodeName);
+			if(searchStr == nodeName)
+				tree.setSelectionPath(new TreePath(nodeName));
+		}
+    }
+    
+    // DocumentListener methods
+	public void changedUpdate(DocumentEvent e) {
+	}
+	public void insertUpdate(DocumentEvent e) {
+		search();
+	}
+	public void removeUpdate(DocumentEvent e) {
+		search();
+	}
+	
+	// TreeSelectionListener method
+	public void valueChanged(TreeSelectionEvent e) {
+		//Returns the last path element of the selection.
+		//This method is useful only when the selection model allows a single selection.
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+			tree.getLastSelectedPathComponent();
+
+		TreeNode[] nodes = node.getPath();
+		StringBuilder path;
+		
+		//Nothing is selected.
+		if (node == null) {
+			path = new StringBuilder("/");
+			return;
+		}
+		path = new StringBuilder();
+		for(TreeNode item : nodes) {
+			path.append("/"+item);
+		}
+		System.out.println("path: " + path);
+		searchField.setText(path.toString());
+	}
+	
+	// GUI stuff
     public void initComponents() {
+    	nodes		= new Vector<String>();
         searchField = new MyTextField();
         top 		= new DefaultMutableTreeNode("top");
-        tree 		= new MyTree(top);
+        tree 		= new MyTree(nodes, top);
         treeView 	= new JScrollPane(tree);
         
         setTitle("Laboration 2");
@@ -91,7 +144,6 @@ public class Laboration2 extends JFrame {
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                //createAndShowGUI();
             	new Laboration2();
             }
         });
