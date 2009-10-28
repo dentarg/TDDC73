@@ -12,15 +12,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-public class Laboration2 {
+@SuppressWarnings("serial")
+public class Laboration2 extends JFrame {
+	
+    private MyTextField searchField;
+    private DefaultMutableTreeNode top;
+    private MyTree tree;
+    private JScrollPane treeView;
 
-    public static void addComponentsToPane(Container pane) {
-        GridBagConstraints c1		= new GridBagConstraints();
-        GridBagConstraints c2		= new GridBagConstraints();
-        MyTextField searchField 	= new MyTextField();
-        DefaultMutableTreeNode top 	= new DefaultMutableTreeNode("top");
-        MyTree tree 				= new MyTree(top);
-        JScrollPane treeView 		= new JScrollPane(tree);
+    public Laboration2() {
+    	initComponents();
         
         // Field stuff
         searchField.setText("/");
@@ -38,6 +39,27 @@ public class Laboration2 {
         
         // test
         tree.setSelectionPath(new TreePath(top));
+    }
+    
+    public void initComponents() {
+        searchField = new MyTextField();
+        top 		= new DefaultMutableTreeNode("top");
+        tree 		= new MyTree(top);
+        treeView 	= new JScrollPane(tree);
+        
+        setTitle("Laboration 2");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridBagLayout());
+
+        //Place the window in a nicer position
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int)dim.getWidth()/2;
+        int y = (int)dim.getHeight()/2;
+        setLocation(x-x/2, y-y/2);
+        setPreferredSize(new Dimension(400,600));        
+        
+        GridBagConstraints c1 = new GridBagConstraints();
+        GridBagConstraints c2 = new GridBagConstraints();
         
         // Position the search filed at the top
         c1.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -50,7 +72,6 @@ public class Laboration2 {
         c1.gridx = 0;
         c1.gridy = 0;
         
-        // Layout stuff
         c2.anchor = GridBagConstraints.FIRST_LINE_START;
         c2.fill = GridBagConstraints.BOTH;
         c2.gridheight = GridBagConstraints.REMAINDER;
@@ -58,33 +79,11 @@ public class Laboration2 {
         c2.weighty = 0.5;
         c2.gridx = 0;
         c2.gridy = 1;
-        
-        // Add stuff
-        pane.setLayout(new GridBagLayout());
-        pane.add(searchField, c1);
-        pane.add(treeView, c2);
-    }
-    
-    private static void createAndShowGUI() {
-        //Create and set up the window.
-        JFrame frame = new JFrame("Laboration 2");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-  
-        //Place the window in a nicer position
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (int)dim.getWidth()/2;
-        int y = (int)dim.getHeight()/2;
-        frame.setLocation(x-x/2, y-y/2);
-        frame.setPreferredSize(new 	Dimension(400,600));
-        
-        //Set up the content pane.
-        Container pane = frame.getContentPane();
-        addComponentsToPane(pane);
 
-        //resize the JFrame to the minimum size necessary
-        frame.pack();
-        //Display the window.
-        frame.setVisible(true);
+        add(searchField, c1);
+        add(treeView, c2);
+        pack(); // resize the JFrame to the minimum size necessary
+        setVisible(true);
     }
 	
 	public static void main(String[] args) {
@@ -92,7 +91,8 @@ public class Laboration2 {
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                createAndShowGUI();
+                //createAndShowGUI();
+            	new Laboration2();
             }
         });
 		System.out.println("Hello World!");
