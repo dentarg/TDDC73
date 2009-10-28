@@ -9,9 +9,12 @@ import java.awt.GridBagConstraints;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeSelectionModel;
 
-public class Laboration2 {
+public class Laboration2 implements TreeSelectionListener {
 
     public static void addComponentsToPane(Container pane) {
         pane.setLayout(new GridBagLayout());
@@ -19,8 +22,7 @@ public class Laboration2 {
         GridBagConstraints c2 = new GridBagConstraints();
         
         MyTextField searchField = new MyTextField();
-        searchField.setAlignmentX(Component.LEFT_ALIGNMENT);
-        searchField.setPreferredSize(new Dimension(250, 25));
+        searchField.setText("/");
         // Position the search filed at the top
         c1.anchor = GridBagConstraints.FIRST_LINE_START;
         // Make search field stay the same height
@@ -34,6 +36,14 @@ public class Laboration2 {
         pane.add(searchField, c1);
         
         MyTree tree = new MyTree(new DefaultMutableTreeNode("root"));
+        tree.getSelectionModel().setSelectionMode
+        	(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        //Listen for when the selection changes
+        MyTreeSelectionListener tsl = 
+        	new MyTreeSelectionListener(tree, searchField);
+        tree.addTreeSelectionListener(tsl);
+        
         c2.anchor = GridBagConstraints.FIRST_LINE_START;
         c2.fill = GridBagConstraints.BOTH;
         c2.gridheight = GridBagConstraints.REMAINDER;
@@ -55,10 +65,7 @@ public class Laboration2 {
         int x = (int)dim.getWidth()/2;
         int y = (int)dim.getHeight()/2;
         frame.setLocation(x-x/2, y-y/2);
-        
-        //frame.setSize(x, y);
-        //frame.setMinimumSize(new 	Dimension(400,600));
-        //frame.setPreferredSize(new 	Dimension(400,600));
+        frame.setPreferredSize(new 	Dimension(400,600));
         
         //Set up the content pane.
         Container pane = frame.getContentPane();
@@ -80,5 +87,4 @@ public class Laboration2 {
         });
 		System.out.println("Hello World!");
 	}
-
 }

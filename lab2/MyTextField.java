@@ -1,7 +1,10 @@
 package lab2;
 
 import javax.swing.JTextField;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
 
 public class MyTextField extends JTextField implements MyWidget {
 	private MyDirector dir;
