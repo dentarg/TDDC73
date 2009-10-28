@@ -25,7 +25,7 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
     private DefaultMutableTreeNode top;
     private MyTree tree;
     private JScrollPane treeView;
-    private Vector<String> nodes;
+    private Vector<DefaultMutableTreeNode> nodes;
 
     public Laboration2() {
     	initComponents();
@@ -49,13 +49,24 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
     
     // search our tree
     public void search() {
-		String searchStr = searchField.getText();
-		Iterator<String> i = nodes.iterator();
+    	Vector<TreePath> paths = new Vector<TreePath>();
+    	String searchStr = searchField.getText();
+		Iterator<DefaultMutableTreeNode> i = nodes.iterator();
+		
 		while(i.hasNext()){
-			String nodeName = i.next();
-			System.out.println("nodeName: " + nodeName);
-			if(searchStr == nodeName)
-				tree.setSelectionPath(new TreePath(nodeName));
+			DefaultMutableTreeNode node = i.next();
+			String nodeName = (String) node.getUserObject();
+			if(nodeName.matches(searchStr)) {
+							
+				TreePath tp = new TreePath(node);
+				
+				System.out.println("nodeName: " + nodeName);
+				System.out.println("tp: " + tp);
+				
+				// FIXME: why won't they work? :'(				
+				//tree.addSelectionPath(tp);
+				//tree.setSelectionPath(tp);
+			}
 		}
     }
     
@@ -94,7 +105,7 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
 	
 	// GUI stuff
     public void initComponents() {
-    	nodes		= new Vector<String>();
+    	nodes		= new Vector<DefaultMutableTreeNode>();
         searchField = new MyTextField();
         top 		= new DefaultMutableTreeNode("top");
         tree 		= new MyTree(nodes, top);
@@ -108,7 +119,7 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int)dim.getWidth()/2;
         int y = (int)dim.getHeight()/2;
-        setLocation(x-x/2, y-y/2);
+        setLocation(x-x/12, y-y/2);
         setPreferredSize(new Dimension(400,600));        
         
         GridBagConstraints c1 = new GridBagConstraints();
