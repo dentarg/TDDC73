@@ -1,11 +1,13 @@
 package lab2;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-public class MyTreeSelectionListener implements TreeSelectionListener {
+public class MyTreeSelectionListener implements TreeSelectionListener, DocumentListener {
 	
 	private MyTree tree;
 	private MyTextField searchField;
@@ -35,6 +37,21 @@ public class MyTreeSelectionListener implements TreeSelectionListener {
 		}
 		System.out.println(path);
 		searchField.setText(path.toString());
+	}
+
+	public void changedUpdate(DocumentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void insertUpdate(DocumentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void removeUpdate(DocumentEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

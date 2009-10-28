@@ -1,6 +1,5 @@
 package lab2;
 
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -9,20 +8,37 @@ import java.awt.GridBagConstraints;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-public class Laboration2 implements TreeSelectionListener {
+public class Laboration2 {
 
     public static void addComponentsToPane(Container pane) {
-        pane.setLayout(new GridBagLayout());
-        GridBagConstraints c1 = new GridBagConstraints();
-        GridBagConstraints c2 = new GridBagConstraints();
+        GridBagConstraints c1		= new GridBagConstraints();
+        GridBagConstraints c2		= new GridBagConstraints();
+        MyTextField searchField 	= new MyTextField();
+        DefaultMutableTreeNode top 	= new DefaultMutableTreeNode("top");
+        MyTree tree 				= new MyTree(top);
+        JScrollPane treeView 		= new JScrollPane(tree);
         
-        MyTextField searchField = new MyTextField();
+        // Field stuff
         searchField.setText("/");
+
+        // Tree stuff
+        tree.getSelectionModel().setSelectionMode
+        	(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.setToggleClickCount(1);
+        tree.setExpandsSelectedPaths(true);
+
+        // Listen for when the selection changes
+        MyTreeSelectionListener tsl = 
+        	new MyTreeSelectionListener(tree, searchField);
+        tree.addTreeSelectionListener(tsl);
+        
+        // test
+        tree.setSelectionPath(new TreePath(top));
+        
         // Position the search filed at the top
         c1.anchor = GridBagConstraints.FIRST_LINE_START;
         // Make search field stay the same height
@@ -33,17 +49,8 @@ public class Laboration2 implements TreeSelectionListener {
         c1.weighty = 0.0;
         c1.gridx = 0;
         c1.gridy = 0;
-        pane.add(searchField, c1);
         
-        MyTree tree = new MyTree(new DefaultMutableTreeNode("root"));
-        tree.getSelectionModel().setSelectionMode
-        	(TreeSelectionModel.SINGLE_TREE_SELECTION);
-
-        //Listen for when the selection changes
-        MyTreeSelectionListener tsl = 
-        	new MyTreeSelectionListener(tree, searchField);
-        tree.addTreeSelectionListener(tsl);
-        
+        // Layout stuff
         c2.anchor = GridBagConstraints.FIRST_LINE_START;
         c2.fill = GridBagConstraints.BOTH;
         c2.gridheight = GridBagConstraints.REMAINDER;
@@ -51,7 +58,10 @@ public class Laboration2 implements TreeSelectionListener {
         c2.weighty = 0.5;
         c2.gridx = 0;
         c2.gridy = 1;
-        JScrollPane treeView = new JScrollPane(tree);
+        
+        // Add stuff
+        pane.setLayout(new GridBagLayout());
+        pane.add(searchField, c1);
         pane.add(treeView, c2);
     }
     
