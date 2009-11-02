@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -19,7 +21,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 @SuppressWarnings("serial")
-public class Laboration2 extends JFrame implements DocumentListener, TreeSelectionListener {
+public class Laboration2 extends JFrame implements DocumentListener, 
+	TreeSelectionListener {
 	
     private MyTextField searchField;
     private DefaultMutableTreeNode top;
@@ -31,7 +34,7 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
     	initComponents();
         
         // Field stuff
-        searchField.setText("/");
+        //searchField.setText("/");
         searchField.getDocument().addDocumentListener(this);
 
         // Tree stuff
@@ -41,33 +44,48 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
         tree.setExpandsSelectedPaths(true);
 
         // Listen for when the selection changes
-        tree.addTreeSelectionListener(this);
+        //tree.addTreeSelectionListener(this);
         
         // test
         //tree.setSelectionPath(new TreePath(top));
     }
     
+    public void treeSearch(DefaultMutableTreeNode node){
+    	
+    }
+    
     // search our tree
     public void search() {
-    	Vector<TreePath> paths = new Vector<TreePath>();
-    	String searchStr = searchField.getText();
-		Iterator<DefaultMutableTreeNode> i = nodes.iterator();
-		
-		while(i.hasNext()){
-			DefaultMutableTreeNode node = i.next();
-			String nodeName = (String) node.getUserObject();
-			if(nodeName.matches(searchStr)) {
-							
-				TreePath tp = new TreePath(node);
-				
-				System.out.println("nodeName: " + nodeName);
-				System.out.println("tp: " + tp);
-				
-				// FIXME: why won't they work? :'(				
-				//tree.addSelectionPath(tp);
-				//tree.setSelectionPath(tp);
-			}
-		}
+    	String fullSearchStr = searchField.getText();
+    	Vector<String> searchStrings = 
+    		new Vector<String>(Arrays.asList(fullSearchStr.split("/")));
+    	Enumeration e = top.breadthFirstEnumeration();
+    	
+        while (e.hasMoreElements()) {
+        	// BAJS
+        	DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.nextElement();
+            System.out.println(node.getLevel() + " " + node);
+        }
+    	
+    	if(!searchStrings.isEmpty()) {
+    		if(fullSearchStr.startsWith("/")) {
+    			searchStrings.remove(0);
+    			
+            	// bšrja med rooten
+            	String nodeName = (String) top.getUserObject();
+            	
+            	String keyword = (String) searchStrings.firstElement();
+            	System.out.println("first: " + keyword);
+
+            	if(nodeName.matches(keyword)) {
+            		System.out.println("matchar ["+nodeName+"]");
+            		searchStrings.remove(keyword);
+            	}
+        	}
+    	}
+    	else {
+    		
+    	}
     }
     
     // DocumentListener methods
@@ -82,8 +100,6 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
 	
 	// TreeSelectionListener method
 	public void valueChanged(TreeSelectionEvent e) {
-		//Returns the last path element of the selection.
-		//This method is useful only when the selection model allows a single selection.
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 			tree.getLastSelectedPathComponent();
 
@@ -149,6 +165,15 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
         pack(); // resize the JFrame to the minimum size necessary
         setVisible(true);
     }
+    
+    public static void printVector(Vector<String> v){
+    	Iterator<String> i = v.iterator();
+    	int counter = 0;
+    	while(i.hasNext()) {
+    		String item = (String) i.next();
+    		System.out.println(counter++ + " ["+item+"]");
+    	}
+    }
 	
 	public static void main(String[] args) {
         //Schedule a job for the event-dispatching thread:
@@ -159,5 +184,9 @@ public class Laboration2 extends JFrame implements DocumentListener, TreeSelecti
             }
         });
 		System.out.println("Hello World!");
+		String s = new String("/apa/bajs/kiss/");
+    	Vector<String> v = 
+    		new Vector<String>(Arrays.asList(s.split("/")));
+		printVector(v);
 	}
 }

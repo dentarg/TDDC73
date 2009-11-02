@@ -18,7 +18,7 @@ public class MyTree extends JTree {
         createTopNode("abc");
         createTopNode("xyz");
         createTopNode("jkl");
-        //createTopNode("abc");
+        createTopNode("abc");
 	}
 		
 	public void createTopNode(String name) {
