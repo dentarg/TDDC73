@@ -4,132 +4,58 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 @SuppressWarnings("serial")
-public class Laboration2 extends JFrame implements DocumentListener, 
-	TreeSelectionListener {
+public class Laboration2 extends JFrame {
 	
-    private MyTextField searchField;
-    private DefaultMutableTreeNode top;
-    private MyTree tree;
+	private MyTree tree;
+	private JTextField searchField;
+	private DefaultMutableTreeNode root;
     private JScrollPane treeView;
-    private Vector<DefaultMutableTreeNode> nodes;
 
     public Laboration2() {
     	initComponents();
+    	new Mediator(tree, root, searchField);
+
+    	DefaultMutableTreeNode a = new DefaultMutableTreeNode("a");
+    	DefaultMutableTreeNode b = new DefaultMutableTreeNode("b");
+    	DefaultMutableTreeNode c = new DefaultMutableTreeNode("c");
+    	root.add(a);
+    	a.add(b);
+    	b.add(c);
+    	Object[] o = new Object[] {root, a, b, c};
+    	TreePath p = new TreePath(o);
+    	tree.setSelectionPath(p);
+    }
         
-        // Field stuff
-        //searchField.setText("/");
-        searchField.getDocument().addDocumentListener(this);
-
-        // Tree stuff
-        tree.getSelectionModel().setSelectionMode
-        	(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.setToggleClickCount(1);
-        tree.setExpandsSelectedPaths(true);
-
-        // Listen for when the selection changes
-        //tree.addTreeSelectionListener(this);
-        
-        // test
-        //tree.setSelectionPath(new TreePath(top));
-    }
-    
-    public void treeSearch(DefaultMutableTreeNode node){
-    	
-    }
-    
-    // search our tree
-    public void search() {
-    	String fullSearchStr = searchField.getText();
-    	Vector<String> searchStrings = 
-    		new Vector<String>(Arrays.asList(fullSearchStr.split("/")));
-    	Enumeration e = top.breadthFirstEnumeration();
-    	
-        while (e.hasMoreElements()) {
-        	// BAJS
-        	DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.nextElement();
-            System.out.println(node.getLevel() + " " + node);
-        }
-    	
-    	if(!searchStrings.isEmpty()) {
-    		if(fullSearchStr.startsWith("/")) {
-    			searchStrings.remove(0);
-    			
-            	// bšrja med rooten
-            	String nodeName = (String) top.getUserObject();
-            	
-            	String keyword = (String) searchStrings.firstElement();
-            	System.out.println("first: " + keyword);
-
-            	if(nodeName.matches(keyword)) {
-            		System.out.println("matchar ["+nodeName+"]");
-            		searchStrings.remove(keyword);
-            	}
-        	}
-    	}
-    	else {
-    		
-    	}
-    }
-    
-    // DocumentListener methods
-	public void changedUpdate(DocumentEvent e) {
-	}
-	public void insertUpdate(DocumentEvent e) {
-		search();
-	}
-	public void removeUpdate(DocumentEvent e) {
-		search();
-	}
-	
-	// TreeSelectionListener method
-	public void valueChanged(TreeSelectionEvent e) {
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-			tree.getLastSelectedPathComponent();
-
-		TreeNode[] nodes = node.getPath();
-		StringBuilder path;
-		
-		//Nothing is selected.
-		if (node == null) {
-			path = new StringBuilder("/");
-			return;
-		}
-		path = new StringBuilder();
-		for(TreeNode item : nodes) {
-			path.append("/"+item);
-		}
-		System.out.println("path: " + path);
-		searchField.setText(path.toString());
-	}
-	
 	// GUI stuff
     public void initComponents() {
-    	nodes		= new Vector<DefaultMutableTreeNode>();
-        searchField = new MyTextField();
-        top 		= new DefaultMutableTreeNode("top");
-        tree 		= new MyTree(nodes, top);
+        searchField = new JTextField();
+        root 		= new DefaultMutableTreeNode("top");
+        tree 		= new MyTree(root);
         treeView 	= new JScrollPane(tree);
         
         setTitle("Laboration 2");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridBagLayout());
+        
+        searchField.setText("/");
+        tree.setToggleClickCount(1);
+    	/* SINGLE_TREE_SELECTION, 
+    	 * CONTIGUOUS_TREE_SELECTION or 
+    	 * DISCONTIGUOUS_TREE_SELECTION
+    	 */
+    	tree.getSelectionModel().setSelectionMode
+    		(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);        
 
         //Place the window in a nicer position
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -174,6 +100,16 @@ public class Laboration2 extends JFrame implements DocumentListener,
     		System.out.println(counter++ + " ["+item+"]");
     	}
     }
+    
+    public static void printNodeVector(Vector<DefaultMutableTreeNode> v){
+    	System.out.println("nodeVector");
+    	Iterator<DefaultMutableTreeNode> i = v.iterator();
+    	int counter = 0;
+    	while(i.hasNext()) {
+    		String item = (String) i.next().getUserObject();
+    		System.out.println(counter++ + " ["+item+"]");
+    	}
+    }
 	
 	public static void main(String[] args) {
         //Schedule a job for the event-dispatching thread:
@@ -184,9 +120,5 @@ public class Laboration2 extends JFrame implements DocumentListener,
             }
         });
 		System.out.println("Hello World!");
-		String s = new String("/apa/bajs/kiss/");
-    	Vector<String> v = 
-    		new Vector<String>(Arrays.asList(s.split("/")));
-		printVector(v);
 	}
 }

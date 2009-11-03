@@ -1,7 +1,5 @@
 package lab2;
 
-import java.util.Vector;
-
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -9,12 +7,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class MyTree extends JTree {
 	
 	private DefaultMutableTreeNode root;
-	private Vector<DefaultMutableTreeNode> nodes;
 	
-	public MyTree(Vector<DefaultMutableTreeNode> nodes, DefaultMutableTreeNode root) {
+	public MyTree(DefaultMutableTreeNode root) {
         super(root);
         this.root = root;
-        this.nodes = nodes;
         createTopNode("abc");
         createTopNode("xyz");
         createTopNode("jkl");
@@ -24,7 +20,6 @@ public class MyTree extends JTree {
 	public void createTopNode(String name) {
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(name);
 		root.add(node);
-		nodes.add(node);
 		generateNodes(node,2,2);
 	}
 	
@@ -34,7 +29,6 @@ public class MyTree extends JTree {
         	String str = new String(node.toString() + i);
         	DefaultMutableTreeNode child = new DefaultMutableTreeNode(str);
         	node.add(child);
-        	nodes.add(child);
         	if(generations > 0) {
         		generateNodes(child,childrens,--generations);
         	}
