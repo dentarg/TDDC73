@@ -2,6 +2,7 @@ package lab2;
 
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -12,6 +13,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 public class Mediator implements DocumentListener, TreeSelectionListener {
@@ -20,15 +22,24 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
     private MyTree 							tree;
     private DefaultMutableTreeNode 			root;
 
-	public Mediator(MyTree tree, DefaultMutableTreeNode root, 
+	public Mediator(MyTree tree, 
+			//DefaultMutableTreeNode root, 
 			JTextField searchField) {
 		this.tree = tree;
-		this.root = root;
+		this.root = (DefaultMutableTreeNode) tree.getModel().getRoot();
 		this.searchField = searchField;
         searchField.getDocument().addDocumentListener(this);
         tree.addTreeSelectionListener(this);
 	}
-	
+    
+	public void searchError() {
+    	searchField.setBackground(Color.red);
+    }
+    
+    public void searchOK() {
+    	searchField.setBackground(Color.white);
+    }	
+    
     // DocumentListener methods
 	public void changedUpdate(DocumentEvent e) {
 	}
@@ -39,64 +50,59 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
 		textChanged();
 	}
 	
-	public void search(DefaultMutableTreeNode node, Vector<String> searchVector,
-			Vector<DefaultMutableTreeNode> pathVector) {
-		
-		String searchStr 	= searchVector.firstElement();
-		String nodeStr 		= (String) node.getUserObject();
-		boolean test 		= nodeStr.startsWith(searchStr);
-		test = nodeStr.matches("^" + searchStr + ".*");
-
-		/* TODO
-		 * Search all children
-		 * Select all matches
-		 */
-		
-		if(test) {			
-			System.out.println("["+ searchStr +"]"+" matchar " + nodeStr);
-			
-			searchField.setBackground(Color.white);
-			// select
-		    pathVector.add(node);
-		    Laboration2.printNodeVector(pathVector);
-			tree.setSelectionPath(new TreePath(pathVector.toArray()));
-			
-			searchVector.remove(searchStr);
-			try {
-				search((DefaultMutableTreeNode) node.getFirstChild(), 
-						searchVector, pathVector);
-			} catch(NoSuchElementException e) {
-				System.out.println("No children left");
-			}
-		}
-		else {
-			searchField.setBackground(Color.red);
-		}
-	}
-    
     public void textChanged() {
-    	tree.removeTreeSelectionListener(this);
-    	String pathString = searchField.getText();
-    	if(!pathString.startsWith("/"))
-    		return;
-    	
-    	Pattern pattern = Pattern.compile("/");
-    	String[] pathComponents = 
-    		pattern.split(pathString.substring(1));
-    	
-    	Vector<DefaultMutableTreeNode> pathVector = 
-    		new Vector<DefaultMutableTreeNode>();
-    	Vector<String> searchVector =
-    		new Vector<String>(Arrays.asList(pathComponents));
-    	
-    	search(root, searchVector, pathVector);
-    	System.out.println("");
-    	
-    	/*for(int i=0; i < pathComponents.length; i++) {
-    		System.out.println("pathComponent" + i + ": " + pathComponents[i]);
-    	}*/
+        tree.removeTreeSelectionListener(this);
+        String pathString = searchField.getText();
+        if(!pathString.startsWith("/")) {
+        	searchError();
+            return;
+        }
+        
+        Pattern pattern = Pattern.compile("/");
+        String[] pathComponents = 
+            pattern.split(pathString.substring(1));
+        
+        tree.setSelectionPath(
+        		search(new TreePath(root), pathComponents, 0)
+        );
 
-    	tree.addTreeSelectionListener(this);   	
+        tree.addTreeSelectionListener(this);    
+    }
+    
+    public TreePath search(TreePath parent, String[] searchStr, int depth) {
+    	// Get the node
+    	TreeNode node = (TreeNode) parent.getLastPathComponent();
+    	String nodeName = node.toString();
+		
+    	// WIP: If match, select
+    	if (nodeName.matches("^" + searchStr[depth] + ".*")) {
+    		tree.addSelectionPath(
+    				parent
+    		);
+    	}
+    	
+    	// If equal, go down the branch
+    	if (nodeName.equals(searchStr[depth])) {
+    		searchOK();
+    		// If at end, return match
+    		if(depth == searchStr.length-1)
+    			return parent;
+    		
+    		// Traverse children
+    		if(node.getChildCount() >= 0) {
+    			for(Enumeration e = node.children(); e.hasMoreElements();) {
+    				TreeNode n = (TreeNode) e.nextElement();
+    				TreePath path = parent.pathByAddingChild(n);
+    				TreePath result = search(path, searchStr, depth+1);
+    				// Found a match
+    				if(result != null)
+    					return result;
+    			}
+    		}
+    	}
+    	// No match at this branch
+    	searchError();
+    	return null;
     }
     	
 	// TreeSelectionListener method

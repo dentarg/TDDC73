@@ -1,11 +1,14 @@
 package lab2;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -24,7 +27,8 @@ public class Laboration2 extends JFrame {
 
     public Laboration2() {
     	initComponents();
-    	new Mediator(tree, root, searchField);
+    	//new Mediator(tree, root, searchField);
+    	new Mediator(tree, searchField);
 
     	DefaultMutableTreeNode a = new DefaultMutableTreeNode("a");
     	DefaultMutableTreeNode b = new DefaultMutableTreeNode("b");
@@ -34,7 +38,7 @@ public class Laboration2 extends JFrame {
     	b.add(c);
     	Object[] o = new Object[] {root, a, b, c};
     	TreePath p = new TreePath(o);
-    	tree.setSelectionPath(p);
+    	//tree.setSelectionPath(p);
     }
         
 	// GUI stuff
@@ -91,7 +95,7 @@ public class Laboration2 extends JFrame {
         pack(); // resize the JFrame to the minimum size necessary
         setVisible(true);
     }
-    
+       
     public static void printVector(Vector<String> v){
     	Iterator<String> i = v.iterator();
     	int counter = 0;
@@ -101,8 +105,8 @@ public class Laboration2 extends JFrame {
     	}
     }
     
-    public static void printNodeVector(Vector<DefaultMutableTreeNode> v){
-    	System.out.println("nodeVector");
+    public static void printNodeVector(String name, Vector<DefaultMutableTreeNode> v){
+    	System.out.println(name);
     	Iterator<DefaultMutableTreeNode> i = v.iterator();
     	int counter = 0;
     	while(i.hasNext()) {
@@ -119,6 +123,25 @@ public class Laboration2 extends JFrame {
             	new Laboration2();
             }
         });
-		System.out.println("Hello World!");
+        System.out.println("Hello World!");
+/*        
+        String s = new String("/apa/bajs/kiss/");
+        Vector<String> v = 
+        	new Vector<String>(Arrays.asList(s.split("/")));
+        printVector(v);
+        
+    	Pattern pattern = Pattern.compile("/");
+    	String[] pathComponents = 
+    		pattern.split(s.substring(1));
+    	for(int i=0; i < pathComponents.length; i++) {
+    		System.out.println("pathComponent" + i + ": " + pathComponents[i]);
+    	}        
+        
+		
+		String nodeStr = new String("a");
+		String searchStr = new String("a");
+		boolean m = nodeStr.matches("^" + searchStr + ".*");
+		System.out.println("testing: " + m);
+*/		
 	}
 }
