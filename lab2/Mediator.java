@@ -20,9 +20,7 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
 
     private JTextField 						searchField;
     private MyTree 							tree;
-    private DefaultMutableTreeNode 			root;
-    private boolean							searchOK;
-    
+    private DefaultMutableTreeNode 			root;    
     private Vector<TreePath>				pathsToBeSelected;
 
 	public Mediator(MyTree tree, JTextField searchField) {
@@ -36,28 +34,12 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
 
 	public void displaySearchError() {
     	searchField.setBackground(Color.red);
-    	System.err.println("NU BLEV DET R…TT");
     }
     
 	public void displaySearchOK() {
     	searchField.setBackground(Color.white);
-    	System.out.println("NU BLEV DET VITT");
     }		
-	
-	public void searchOK() {
-		if(searchOK) {
-			displaySearchOK();
-		}
-		else {
-			displaySearchError();	
-		}
-	}
-	
-	public void searchOK(boolean searchOK) {
-		this.searchOK = searchOK;
-		searchOK();
-	}
-    
+
     // DocumentListener methods
 	public void changedUpdate(DocumentEvent e) {
 	}
@@ -72,31 +54,27 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
         tree.removeTreeSelectionListener(this);
         String pathString = searchField.getText();
         if(!pathString.startsWith("/")) {
-        	searchOK();
+        	displaySearchError();
             return;
         }
-        
         Pattern pattern = Pattern.compile("/");
         String[] pathComponents = 
             pattern.split(pathString.substring(1));
-        
         search(new TreePath(root), pathComponents, 0);
-
         tree.addTreeSelectionListener(this);    
     }
     
     public void select(TreePath path) {
-
+    	displaySearchOK();
     	pathsToBeSelected.add(path);
-    	
     	for(Enumeration e = pathsToBeSelected.elements(); e.hasMoreElements();) {
     		tree.addSelectionPath((TreePath) e.nextElement());
     	}
-
         System.out.println("select(" + path + ")");
     }
 
     public void clearSelection() {
+    	displaySearchError();
     	if(!pathsToBeSelected.isEmpty())
     		pathsToBeSelected.clear();
     	tree.clearSelection();
@@ -105,9 +83,6 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
     
     public TreePath search(TreePath parent, String[] searchStrings, int depth) {
     	System.out.println("--search--");
-    	
-    	//clearSelection();
-    	
     	// Get the node
     	TreeNode node = (TreeNode) parent.getLastPathComponent();
     	String nodeName = node.toString();
@@ -120,19 +95,15 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
     	}
     	else {
     		match = false;
-    		System.out.println("match false");
     	}
     	
     	if(match) {
     		TreePath mpath = new TreePath(parent.getPath());
-    		System.out.println("nodeName: "+ nodeName + " parent path: " + mpath);
-
     		// If equal, go down the branch
     		if (nodeName.equals(searchStrings[depth])) {
-    			// If at end, return match
     			clearSelection();
+    			// If at end, return match
     			if(depth == searchStrings.length-1) {
-    				System.out.println("depth == searchStr.length-1: " + parent);
     				select(parent);
     				return parent;
     			}
@@ -146,7 +117,6 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
     					// Found a match
     					if(result != null) {
     						select(result);
-    						System.out.println("result != null: " + path);
     						return result;
     					}
 
@@ -154,22 +124,15 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
     			}
     		}
     		else if(match) {
-    			System.out.println("addSelectionPath: " + mpath + "(not equal, but match)");
     			select(mpath);
     			return null;
     		}
     		else {
     	    	// No match at this branch
-    			//clearSelection();
-    			System.out.println("clearSelection (not equal, no match)");
+    			displaySearchError();
     	    	return null;
     		}
     	}
-//    	searchOK();
-//    	System.out.println("SLUTET match: " + match + " searchError: " + searchOK);
-    	
-    	//clearSelection();
-    	//System.out.println("clearSelection never a match");
     	System.out.println("--end--");
     	return null;
     }
