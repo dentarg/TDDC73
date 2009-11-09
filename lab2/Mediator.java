@@ -1,12 +1,13 @@
 package lab2;
 
 import java.awt.Color;
-import java.util.Arrays;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Enumeration;
-import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -16,20 +17,28 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-public class Mediator implements DocumentListener, TreeSelectionListener {
+public class Mediator implements DocumentListener, TreeSelectionListener, 
+ActionListener {
 
     private JTextField 						searchField;
     private MyTree 							tree;
     private DefaultMutableTreeNode 			root;    
     private Vector<TreePath>				pathsToBeSelected;
+    private JButton							fltrBttn;
 
-	public Mediator(MyTree tree, JTextField searchField) {
-		this.tree = tree;
-		this.root = (DefaultMutableTreeNode) tree.getModel().getRoot();
-		this.searchField = searchField;
+	public Mediator(MyTree tree, JTextField searchField, JButton fltrBttn) {
+		pathsToBeSelected 	= new Vector<TreePath>();
+		this.tree 			= tree;
+		this.root 			= (DefaultMutableTreeNode)tree.getModel().getRoot();
+		this.searchField 	= searchField;
+		this.fltrBttn 		= fltrBttn;
+		
+		fltrBttn.setActionCommand("filter");
+		
+		// Listen for actions
         searchField.getDocument().addDocumentListener(this);
         tree.addTreeSelectionListener(this);
-        pathsToBeSelected = new Vector<TreePath>();
+        fltrBttn.addActionListener(this);
 	}
 
 	public void displaySearchError() {
@@ -67,8 +76,9 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
     public void select(TreePath path) {
     	displaySearchOK();
     	pathsToBeSelected.add(path);
-    	for(Enumeration e = pathsToBeSelected.elements(); e.hasMoreElements();) {
-    		tree.addSelectionPath((TreePath) e.nextElement());
+    	for(Enumeration<TreePath> e = pathsToBeSelected.elements(); 
+    	e.hasMoreElements();) {
+    		tree.addSelectionPath(e.nextElement());
     	}
         System.out.println("select(" + path + ")");
     }
@@ -81,7 +91,8 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
     	System.out.println("clearSelection()");
     }    
     
-    public TreePath search(TreePath parent, String[] searchStrings, int depth) {
+    @SuppressWarnings("unchecked")
+	public TreePath search(TreePath parent, String[] searchStrings, int depth) {
     	System.out.println("--search--");
     	// Get the node
     	TreeNode node = (TreeNode) parent.getLastPathComponent();
@@ -148,5 +159,16 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
 		// Set the text
 		searchField.setText(sb.toString());
 		searchField.getDocument().addDocumentListener(this);
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		if("filter".equals(e.getActionCommand())) {
+			fltrBttn.setActionCommand("mark");
+			fltrBttn.setText("Växla till markeringsläge");
+		}
+		else {
+			fltrBttn.setActionCommand("filter");
+			fltrBttn.setText("Växla till filtreringsläge");			
+		}
 	}
 }

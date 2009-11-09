@@ -1,16 +1,15 @@
 package lab2;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
-import java.util.regex.Pattern;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -20,15 +19,16 @@ import javax.swing.tree.TreeSelectionModel;
 @SuppressWarnings("serial")
 public class Laboration2 extends JFrame {
 	
-	private MyTree tree;
-	private JTextField searchField;
-	private DefaultMutableTreeNode root;
-    private JScrollPane treeView;
+	private MyTree 					tree;
+	private JTextField 				searchField;
+	private DefaultMutableTreeNode 	root;
+    private JScrollPane 			treeView;
+    private JButton 				fltrBttn;
+    private JPanel					topPanel;
 
     public Laboration2() {
     	initComponents();
-    	//new Mediator(tree, root, searchField);
-    	new Mediator(tree, searchField);
+    	new Mediator(tree, searchField, fltrBttn);
 
     	DefaultMutableTreeNode a = new DefaultMutableTreeNode("a");
     	DefaultMutableTreeNode b = new DefaultMutableTreeNode("b");
@@ -47,16 +47,18 @@ public class Laboration2 extends JFrame {
         root 		= new DefaultMutableTreeNode("top");
         tree 		= new MyTree(root);
         treeView 	= new JScrollPane(tree);
+        fltrBttn	= new JButton("Växla till filtreringsläge");
+        topPanel	= new JPanel();
         
         setTitle("Laboration 2");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridBagLayout());
         
         searchField.setText("/");
-        //tree.setToggleClickCount(1);
+        tree.setToggleClickCount(1);
     	
-        /* Selection can contain any number of items that are not necessarily 
-         * contiguous.
+        /* DISCONTIGUOUS_TREE_SELECTION = Selection can contain any number of 
+         * items that are not necessarily contiguous.
          */
     	tree.getSelectionModel().setSelectionMode
     		(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
@@ -67,7 +69,7 @@ public class Laboration2 extends JFrame {
         int x = (int)dim.getWidth()/2;
         int y = (int)dim.getHeight()/2;
         setLocation(x-2*x/4, y-y/2);
-        setPreferredSize(new Dimension(400,600));        
+        setPreferredSize(new Dimension(450,400));        
         
         GridBagConstraints c1 = new GridBagConstraints();
         GridBagConstraints c2 = new GridBagConstraints();
@@ -79,19 +81,26 @@ public class Laboration2 extends JFrame {
         c1.gridheight = GridBagConstraints.RELATIVE;
         c1.weightx = 1.0;
         // Do not make search field box bigger when resizing
+        // or the button
         c1.weighty = 0.0;
         c1.gridx = 0;
         c1.gridy = 0;
         
+        // The tree
         c2.anchor = GridBagConstraints.FIRST_LINE_START;
         c2.fill = GridBagConstraints.BOTH;
         c2.gridheight = GridBagConstraints.REMAINDER;
         c2.weightx = 1.0;
         c2.weighty = 0.5;
         c2.gridx = 0;
-        c2.gridy = 1;
+        c2.gridy = 3;
 
-        add(searchField, c1);
+        // reuse the GridBagLayout because it rocks
+        topPanel.setLayout(new GridBagLayout());
+        topPanel.add(searchField,c1);
+        topPanel.add(fltrBttn, c2);
+        
+        add(topPanel, c1);
         add(treeView, c2);
         pack(); // resize the JFrame to the minimum size necessary
         setVisible(true);
