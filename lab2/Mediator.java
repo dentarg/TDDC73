@@ -21,24 +21,42 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
     private JTextField 						searchField;
     private MyTree 							tree;
     private DefaultMutableTreeNode 			root;
+    private boolean							searchOK;
+    
+    private Vector<TreePath>				pathsToBeSelected;
 
-	public Mediator(MyTree tree, 
-			//DefaultMutableTreeNode root, 
-			JTextField searchField) {
+	public Mediator(MyTree tree, JTextField searchField) {
 		this.tree = tree;
 		this.root = (DefaultMutableTreeNode) tree.getModel().getRoot();
 		this.searchField = searchField;
         searchField.getDocument().addDocumentListener(this);
         tree.addTreeSelectionListener(this);
+        pathsToBeSelected = new Vector<TreePath>();
 	}
-    
-	public void searchError() {
+
+	public void displaySearchError() {
     	searchField.setBackground(Color.red);
+    	System.err.println("NU BLEV DET R…TT");
     }
     
-    public void searchOK() {
+	public void displaySearchOK() {
     	searchField.setBackground(Color.white);
-    }	
+    	System.out.println("NU BLEV DET VITT");
+    }		
+	
+	public void searchOK() {
+		if(searchOK) {
+			displaySearchOK();
+		}
+		else {
+			displaySearchError();	
+		}
+	}
+	
+	public void searchOK(boolean searchOK) {
+		this.searchOK = searchOK;
+		searchOK();
+	}
     
     // DocumentListener methods
 	public void changedUpdate(DocumentEvent e) {
@@ -54,7 +72,7 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
         tree.removeTreeSelectionListener(this);
         String pathString = searchField.getText();
         if(!pathString.startsWith("/")) {
-        	searchError();
+        	searchOK();
             return;
         }
         
@@ -62,46 +80,97 @@ public class Mediator implements DocumentListener, TreeSelectionListener {
         String[] pathComponents = 
             pattern.split(pathString.substring(1));
         
-        tree.setSelectionPath(
-        		search(new TreePath(root), pathComponents, 0)
-        );
+        search(new TreePath(root), pathComponents, 0);
 
         tree.addTreeSelectionListener(this);    
     }
     
-    public TreePath search(TreePath parent, String[] searchStr, int depth) {
+    public void select(TreePath path) {
+
+    	pathsToBeSelected.add(path);
+    	
+    	for(Enumeration e = pathsToBeSelected.elements(); e.hasMoreElements();) {
+    		tree.addSelectionPath((TreePath) e.nextElement());
+    	}
+
+        System.out.println("select(" + path + ")");
+    }
+
+    public void clearSelection() {
+    	if(!pathsToBeSelected.isEmpty())
+    		pathsToBeSelected.clear();
+    	tree.clearSelection();
+    	System.out.println("clearSelection()");
+    }    
+    
+    public TreePath search(TreePath parent, String[] searchStrings, int depth) {
+    	System.out.println("--search--");
+    	
+    	//clearSelection();
+    	
     	// Get the node
     	TreeNode node = (TreeNode) parent.getLastPathComponent();
     	String nodeName = node.toString();
-		
-    	// WIP: If match, select
-    	if (nodeName.matches("^" + searchStr[depth] + ".*")) {
-    		tree.addSelectionPath(
-    				parent
-    		);
+    	String searchStr = new String();
+
+    	boolean match;
+    	if(depth <= searchStrings.length-1) {
+    		searchStr = Pattern.quote(searchStrings[depth]);
+    		match = nodeName.matches("^" + searchStr + ".*");
+    	}
+    	else {
+    		match = false;
+    		System.out.println("match false");
     	}
     	
-    	// If equal, go down the branch
-    	if (nodeName.equals(searchStr[depth])) {
-    		searchOK();
-    		// If at end, return match
-    		if(depth == searchStr.length-1)
-    			return parent;
-    		
-    		// Traverse children
-    		if(node.getChildCount() >= 0) {
-    			for(Enumeration e = node.children(); e.hasMoreElements();) {
-    				TreeNode n = (TreeNode) e.nextElement();
-    				TreePath path = parent.pathByAddingChild(n);
-    				TreePath result = search(path, searchStr, depth+1);
-    				// Found a match
-    				if(result != null)
-    					return result;
+    	if(match) {
+    		TreePath mpath = new TreePath(parent.getPath());
+    		System.out.println("nodeName: "+ nodeName + " parent path: " + mpath);
+
+    		// If equal, go down the branch
+    		if (nodeName.equals(searchStrings[depth])) {
+    			// If at end, return match
+    			clearSelection();
+    			if(depth == searchStrings.length-1) {
+    				System.out.println("depth == searchStr.length-1: " + parent);
+    				select(parent);
+    				return parent;
+    			}
+
+    			// Traverse children
+    			if(node.getChildCount() >= 0) {
+    				for(Enumeration e = node.children(); e.hasMoreElements();) {
+    					TreeNode n = (TreeNode) e.nextElement();
+    					TreePath path = parent.pathByAddingChild(n);
+    					TreePath result = search(path, searchStrings, depth+1);
+    					// Found a match
+    					if(result != null) {
+    						select(result);
+    						System.out.println("result != null: " + path);
+    						return result;
+    					}
+
+    				}
     			}
     		}
+    		else if(match) {
+    			System.out.println("addSelectionPath: " + mpath + "(not equal, but match)");
+    			select(mpath);
+    			return null;
+    		}
+    		else {
+    	    	// No match at this branch
+    			//clearSelection();
+    			System.out.println("clearSelection (not equal, no match)");
+    	    	return null;
+    		}
     	}
-    	// No match at this branch
-    	searchError();
+//    	searchOK();
+//    	System.out.println("SLUTET match: " + match + " searchError: " + searchOK);
+    	
+    	//clearSelection();
+    	//System.out.println("clearSelection never a match");
+    	System.out.println("--end--");
     	return null;
     }
     	

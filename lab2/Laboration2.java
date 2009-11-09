@@ -36,7 +36,7 @@ public class Laboration2 extends JFrame {
     	root.add(a);
     	a.add(b);
     	b.add(c);
-    	Object[] o = new Object[] {root, a, b, c};
+    	Object[] o = new Object[] {root, a}; //b, c};
     	TreePath p = new TreePath(o);
     	//tree.setSelectionPath(p);
     }
@@ -53,19 +53,20 @@ public class Laboration2 extends JFrame {
         setLayout(new GridBagLayout());
         
         searchField.setText("/");
-        tree.setToggleClickCount(1);
-    	/* SINGLE_TREE_SELECTION, 
-    	 * CONTIGUOUS_TREE_SELECTION or 
-    	 * DISCONTIGUOUS_TREE_SELECTION
-    	 */
+        //tree.setToggleClickCount(1);
+    	
+        /* Selection can contain any number of items that are not necessarily 
+         * contiguous.
+         */
     	tree.getSelectionModel().setSelectionMode
-    		(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);        
+    		(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+    	tree.setExpandsSelectedPaths(true);
 
         //Place the window in a nicer position
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int)dim.getWidth()/2;
         int y = (int)dim.getHeight()/2;
-        setLocation(x-x/12, y-y/2);
+        setLocation(x-2*x/4, y-y/2);
         setPreferredSize(new Dimension(400,600));        
         
         GridBagConstraints c1 = new GridBagConstraints();
