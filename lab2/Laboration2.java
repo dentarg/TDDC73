@@ -7,38 +7,28 @@ import java.awt.GridBagConstraints;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 @SuppressWarnings("serial")
 public class Laboration2 extends JFrame {
-	
 	private MyTree 					tree;
 	private JTextField 				searchField;
 	private DefaultMutableTreeNode 	root;
     private JScrollPane 			treeView;
-    private JButton 				fltrBttn;
-    private JPanel					topPanel;
 
     public Laboration2() {
     	initComponents();
-    	new Mediator(tree, searchField, fltrBttn);
-
+    	new Mediator(tree, searchField);
     	DefaultMutableTreeNode a = new DefaultMutableTreeNode("a");
     	DefaultMutableTreeNode b = new DefaultMutableTreeNode("b");
     	DefaultMutableTreeNode c = new DefaultMutableTreeNode("c");
     	root.add(a);
     	a.add(b);
-    	b.add(c);
-    	Object[] o = new Object[] {root, a}; //b, c};
-    	TreePath p = new TreePath(o);
-    	//tree.setSelectionPath(p);
+    	b.add(c);    	
     }
         
 	// GUI stuff
@@ -47,8 +37,6 @@ public class Laboration2 extends JFrame {
         root 		= new DefaultMutableTreeNode("top");
         tree 		= new MyTree(root);
         treeView 	= new JScrollPane(tree);
-        fltrBttn	= new JButton("Växla till filtreringsläge");
-        topPanel	= new JPanel();
         
         setTitle("Laboration 2");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,7 +56,7 @@ public class Laboration2 extends JFrame {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int)dim.getWidth()/2;
         int y = (int)dim.getHeight()/2;
-        setLocation(x-2*x/4, y-y/2);
+        setLocation(x-2*x/3, y-y/2);
         setPreferredSize(new Dimension(450,400));        
         
         GridBagConstraints c1 = new GridBagConstraints();
@@ -94,13 +82,8 @@ public class Laboration2 extends JFrame {
         c2.weighty = 0.5;
         c2.gridx = 0;
         c2.gridy = 3;
-
-        // reuse the GridBagLayout because it rocks
-        topPanel.setLayout(new GridBagLayout());
-        topPanel.add(searchField,c1);
-        topPanel.add(fltrBttn, c2);
         
-        add(topPanel, c1);
+        add(searchField, c1);
         add(treeView, c2);
         pack(); // resize the JFrame to the minimum size necessary
         setVisible(true);
@@ -134,24 +117,5 @@ public class Laboration2 extends JFrame {
             }
         });
         System.out.println("Hello World!");
-/*        
-        String s = new String("/apa/bajs/kiss/");
-        Vector<String> v = 
-        	new Vector<String>(Arrays.asList(s.split("/")));
-        printVector(v);
-        
-    	Pattern pattern = Pattern.compile("/");
-    	String[] pathComponents = 
-    		pattern.split(s.substring(1));
-    	for(int i=0; i < pathComponents.length; i++) {
-    		System.out.println("pathComponent" + i + ": " + pathComponents[i]);
-    	}        
-        
-		
-		String nodeStr = new String("a");
-		String searchStr = new String("a");
-		boolean m = nodeStr.matches("^" + searchStr + ".*");
-		System.out.println("testing: " + m);
-*/		
 	}
 }

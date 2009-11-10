@@ -1,44 +1,34 @@
 package lab2;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
-import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-public class Mediator implements DocumentListener, TreeSelectionListener, 
-ActionListener {
+public class Mediator implements DocumentListener, TreeSelectionListener {
 
     private JTextField 						searchField;
     private MyTree 							tree;
-    private DefaultMutableTreeNode 			root;    
+    private DefaultMutableTreeNode 			root;
     private Vector<TreePath>				pathsToBeSelected;
-    private JButton							fltrBttn;
 
-	public Mediator(MyTree tree, JTextField searchField, JButton fltrBttn) {
+	public Mediator(MyTree tree, JTextField searchField) {
 		pathsToBeSelected 	= new Vector<TreePath>();
 		this.tree 			= tree;
 		this.root 			= (DefaultMutableTreeNode)tree.getModel().getRoot();
 		this.searchField 	= searchField;
-		this.fltrBttn 		= fltrBttn;
-		
-		fltrBttn.setActionCommand("filter");
 		
 		// Listen for actions
         searchField.getDocument().addDocumentListener(this);
         tree.addTreeSelectionListener(this);
-        fltrBttn.addActionListener(this);
 	}
 
 	public void displaySearchError() {
@@ -58,7 +48,7 @@ ActionListener {
 	public void removeUpdate(DocumentEvent e) {
 		textChanged();
 	}
-	
+
     public void textChanged() {
         tree.removeTreeSelectionListener(this);
         String pathString = searchField.getText();
@@ -70,32 +60,14 @@ ActionListener {
         String[] pathComponents = 
             pattern.split(pathString.substring(1));
         search(new TreePath(root), pathComponents, 0);
-        tree.addTreeSelectionListener(this);    
+        tree.addTreeSelectionListener(this);
     }
-    
-    public void select(TreePath path) {
-    	displaySearchOK();
-    	pathsToBeSelected.add(path);
-    	for(Enumeration<TreePath> e = pathsToBeSelected.elements(); 
-    	e.hasMoreElements();) {
-    		tree.addSelectionPath(e.nextElement());
-    	}
-        System.out.println("select(" + path + ")");
-    }
-
-    public void clearSelection() {
-    	displaySearchError();
-    	if(!pathsToBeSelected.isEmpty())
-    		pathsToBeSelected.clear();
-    	tree.clearSelection();
-    	System.out.println("clearSelection()");
-    }    
-    
+   
     @SuppressWarnings("unchecked")
 	public TreePath search(TreePath parent, String[] searchStrings, int depth) {
-    	System.out.println("--search--");
     	// Get the node
-    	TreeNode node = (TreeNode) parent.getLastPathComponent();
+    	DefaultMutableTreeNode node = 
+    		(DefaultMutableTreeNode) parent.getLastPathComponent();
     	String nodeName = node.toString();
     	String searchStr = new String();
 
@@ -107,35 +79,37 @@ ActionListener {
     	else {
     		match = false;
     	}
-    	
+  	
     	if(match) {
     		TreePath mpath = new TreePath(parent.getPath());
     		// If equal, go down the branch
     		if (nodeName.equals(searchStrings[depth])) {
-    			clearSelection();
+    			clearSelection("search string: " + searchStrings[depth]);
     			// If at end, return match
     			if(depth == searchStrings.length-1) {
-    				select(parent);
+    				select(parent, "depth == searchStrings.length-1");
+    				System.out.println("--return parent: ["+parent+"]");
     				return parent;
     			}
 
     			// Traverse children
     			if(node.getChildCount() >= 0) {
     				for(Enumeration e = node.children(); e.hasMoreElements();) {
-    					TreeNode n = (TreeNode) e.nextElement();
+    					DefaultMutableTreeNode n = 
+    						(DefaultMutableTreeNode) e.nextElement();
     					TreePath path = parent.pathByAddingChild(n);
-    					TreePath result = search(path, searchStrings, depth+1);
+    					TreePath result = 
+    						search(path, searchStrings, depth+1);
     					// Found a match
-    					if(result != null) {
-    						select(result);
+    					if(result != null) {    						
+    						select(result, "result != null");
     						return result;
     					}
-
     				}
     			}
     		}
     		else if(match) {
-    			select(mpath);
+    			select(mpath, "match");
     			return null;
     		}
     		else {
@@ -143,11 +117,31 @@ ActionListener {
     			displaySearchError();
     	    	return null;
     		}
+    	} 
+    	else {
+    		clearSelection("no match");
     	}
-    	System.out.println("--end--");
     	return null;
+    }    
+    
+    public void select(TreePath path, String id) {
+    	displaySearchOK();
+    	pathsToBeSelected.add(path);
+    	for(Enumeration<TreePath> e = pathsToBeSelected.elements(); 
+    	e.hasMoreElements();) {
+    		tree.addSelectionPath(e.nextElement());
+    	}
+        //System.out.println("select(" + path + ") " + id);
     }
-    	
+
+    public void clearSelection(String id) {
+    	displaySearchError();
+    	if(!pathsToBeSelected.isEmpty())
+    		pathsToBeSelected.clear();
+    	tree.clearSelection();
+    	//System.out.println("clearSelection("+id+")");
+    }
+ 
 	// TreeSelectionListener method
 	public void valueChanged(TreeSelectionEvent e) {
 		searchField.getDocument().removeDocumentListener(this);
@@ -160,15 +154,16 @@ ActionListener {
 		searchField.setText(sb.toString());
 		searchField.getDocument().addDocumentListener(this);
 	}
-
-	public void actionPerformed(ActionEvent e) {
-		if("filter".equals(e.getActionCommand())) {
-			fltrBttn.setActionCommand("mark");
-			fltrBttn.setText("Växla till markeringsläge");
-		}
-		else {
-			fltrBttn.setActionCommand("filter");
-			fltrBttn.setText("Växla till filtreringsläge");			
-		}
-	}
+	
+    public DefaultMutableTreeNode TreePathToNode(TreePath path) {
+    	return (DefaultMutableTreeNode) path.getLastPathComponent();
+    }
+    
+    public DefaultMutableTreeNode cloneNode(DefaultMutableTreeNode node) {
+    	return (DefaultMutableTreeNode) node.clone();
+    }
+    
+    public DefaultMutableTreeNode cloneTreePathToNode(TreePath path) {
+    	return cloneNode(TreePathToNode(path));
+    }	
 }
