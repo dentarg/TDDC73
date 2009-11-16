@@ -2,3 +2,4 @@
 .project
 *Demo.java
 tmp
+*.tar.gz
