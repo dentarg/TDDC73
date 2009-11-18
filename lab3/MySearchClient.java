@@ -6,7 +6,10 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -19,47 +22,73 @@ public class MySearchClient extends JComponent implements SearchClient,
 	DocumentListener, MouseListener {
 	
 	private int maxResults;
+	private long searchId;
 	private FemaleNamesSearchProvider f;
 	private JTextField searchField;
-	private List<String> searchResults;
+	private List<JLabel> searchResults;
 	
 	public MySearchClient(FemaleNamesSearchProvider f, JTextField searchField) {
 		this.f = f;
 		this.searchField = searchField;
-		this.searchResults = new ArrayList<String>();
+		this.searchResults = new ArrayList<JLabel>();
         this.maxResults = 5;
         
         addMouseListener(this);
-	}
-	
-	@Override
-	protected void paintComponent(Graphics g) {
-		int x = 0;
-		int y = 10;
-		for(String resStr : searchResults) {
-			System.out.println("draw: " + resStr);
-			g.drawString(resStr, x, y);
-			y+=10;
-			System.out.println(g.getFontMetrics().getStringBounds(resStr, g));
-		}
+        
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));        
 	}
 
-	public void searchResultUpdate(long arg0, List<String> arg1) {
-		if(arg1.isEmpty())
+/*
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		for(JLabel label : searchResults) {
+			System.out.println("draw: " + label.getText());
+		}
+	}
+*/	
+
+	public void addSearchResult(String searchResult) {
+		JLabel label = new JLabel(searchResult);
+		searchResults.add(label);
+		add(label);
+		label.addMouseListener(this);
+		revalidate();
+	}
+	public void clearSearchResults() {
+		System.out.println("clear");
+		for(JLabel label : searchResults) {
+			remove(label);
+			System.out.println("removed" + label.getText());
+		}
+		searchResults.clear();
+	}
+
+	// called by newAsyncSearch 
+	public void searchResultUpdate(long id, List<String> results) {
+		if(results.isEmpty()) {
 			System.out.println("Nothing found");
-		for(String resStr : arg1) {
-			searchResults.add(resStr);
+			repaint();
+			return;
+		}
+		
+		if(searchId != id) {
+			System.out.println("Wrong searchId");
+			return;
+		}
+		
+		for(String resStr : results) {
+			addSearchResult(resStr);
 			System.out.println("Added " + resStr);
 		}
-		System.out.println(searchResults);
 		repaint();
 	}
 
+	// text field method 
     public void textChanged() {
-    	searchResults.clear();
+    	clearSearchResults();
     	String searchStr = searchField.getText();
-    	f.newAsyncSearch(searchStr, getMaxResults());
-    	repaint();
+    	searchId = f.newAsyncSearch(searchStr, getMaxResults());
     }
 	
 	// DocumentListener methods
@@ -79,10 +108,20 @@ public class MySearchClient extends JComponent implements SearchClient,
 		return maxResults;
 	}
 
+	// MouseListener methods
 	public void mouseClicked(MouseEvent e) {
 		int X=e.getX();
         int Y=e.getY();
         System.out.println("The (X,Y) coordinate of window is ("+X+","+Y+")");
+        System.out.println("e.getSource(): " + e.getSource().getClass());
+        System.out.println(new JLabel().getClass());
+
+        Object obj = e.getSource();
+        
+        if(obj.getClass() == new JLabel().getClass()) {
+            JLabel label = (JLabel) obj;
+            searchField.setText(label.getText());
+        }
 	}
 
 	public void mouseEntered(MouseEvent e) {
