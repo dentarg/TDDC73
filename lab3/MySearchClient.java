@@ -34,8 +34,7 @@ public class MySearchClient extends JComponent implements SearchClient,
         this.maxResults = 5;
         
         addMouseListener(this);
-        
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));        
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 
 /*
@@ -110,18 +109,11 @@ public class MySearchClient extends JComponent implements SearchClient,
 
 	// MouseListener methods
 	public void mouseClicked(MouseEvent e) {
-		int X=e.getX();
-        int Y=e.getY();
-        System.out.println("The (X,Y) coordinate of window is ("+X+","+Y+")");
-        System.out.println("e.getSource(): " + e.getSource().getClass());
-        System.out.println(new JLabel().getClass());
-
-        Object obj = e.getSource();
-        
-        if(obj.getClass() == new JLabel().getClass()) {
-            JLabel label = (JLabel) obj;
-            searchField.setText(label.getText());
-        }
+		Object obj = e.getSource();    
+		if(obj.getClass() == new JLabel().getClass()) {
+			JLabel label = (JLabel) obj;
+			searchField.setText(label.getText());
+		}
 	}
 
 	public void mouseEntered(MouseEvent e) {
