@@ -1,5 +1,8 @@
 package lab3;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -11,6 +14,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.JWindow;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -26,39 +30,35 @@ public class MySearchClient extends JComponent implements SearchClient,
 	private FemaleNamesSearchProvider f;
 	private JTextField searchField;
 	private List<JLabel> searchResults;
+	private JWindow window;
 	
-	public MySearchClient(FemaleNamesSearchProvider f, JTextField searchField) {
+	public MySearchClient(FemaleNamesSearchProvider f, JTextField searchField,
+			JWindow window) {
 		this.f = f;
 		this.searchField = searchField;
 		this.searchResults = new ArrayList<JLabel>();
-        this.maxResults = 5;
+        this.maxResults = 20;
+        this.window = window;
         
         addMouseListener(this);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
-
-/*
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		for(JLabel label : searchResults) {
-			System.out.println("draw: " + label.getText());
-		}
-	}
-*/	
-
+	
 	public void addSearchResult(String searchResult) {
 		JLabel label = new JLabel(searchResult);
+		FontMetrics fm = this.getFontMetrics(searchField.getFont());
+		label.setPreferredSize(new Dimension(searchField.getWidth(), fm.getHeight()));
 		searchResults.add(label);
 		add(label);
 		label.addMouseListener(this);
-		revalidate();
+		revalidate(); // update layout and repaint()
 	}
+	
 	public void clearSearchResults() {
 		System.out.println("clear");
 		for(JLabel label : searchResults) {
 			remove(label);
-			System.out.println("removed" + label.getText());
+			System.out.println("removed " + label.getText());
 		}
 		searchResults.clear();
 	}
@@ -67,6 +67,8 @@ public class MySearchClient extends JComponent implements SearchClient,
 	public void searchResultUpdate(long id, List<String> results) {
 		if(results.isEmpty()) {
 			System.out.println("Nothing found");
+			searchField.setBackground(Color.red);
+			window.setVisible(false);
 			repaint();
 			return;
 		}
@@ -80,7 +82,11 @@ public class MySearchClient extends JComponent implements SearchClient,
 			addSearchResult(resStr);
 			System.out.println("Added " + resStr);
 		}
-		repaint();
+		searchField.setBackground(Color.white);
+		window.setVisible(true);
+    	window.toFront();
+    	window.pack();
+    	repaint();
 	}
 
 	// text field method 

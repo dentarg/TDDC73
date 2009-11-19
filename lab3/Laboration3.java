@@ -40,23 +40,14 @@ public class Laboration3 extends JFrame implements AncestorListener {
         int x = (int)dim.getWidth()/2;
         int y = (int)dim.getHeight()/2;
     	
-        // init stuff
+        // initialize stuff
         f = FemaleNamesSearchProvider.getInstance();
         searchField = new JTextField();
         window = new JWindow(this);
-        sc = new MySearchClient(f, searchField);
-    	
-    	// main window stuff
-    	setTitle("Laboration 3");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocation(x-2*x/3, y-y/2);
-        setPreferredSize(new Dimension(450,400));
-        setLayout(new GridBagLayout());    	
-    	
-    	// window init
-        window.add(sc);
-       
-    	// layout init
+        sc = new MySearchClient(f, searchField, window);
+ 
+    	// initialize layout
+        setLayout(new GridBagLayout());
         GridBagConstraints c1 = new GridBagConstraints();
         GridBagConstraints c2 = new GridBagConstraints();
         
@@ -81,18 +72,21 @@ public class Laboration3 extends JFrame implements AncestorListener {
         c2.gridx = 0;
         c2.gridy = 3;
         
+        // add stuff
+        window.add(sc);
         add(searchField, c1);
         add(new JPanel(), c2);
-        
-        pack(); // resize the JFrame to the minimum size necessary
+                
+        // configure frame
+    	setTitle("Laboration 3");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocation(x-2*x/3, y-y/2);
+        setPreferredSize(new Dimension(300,searchField.getHeight()+50));
+    	pack(); // resize the JFrame to the minimum size necessary
         setVisible(true);
         
         // configure window
-        window.setPreferredSize(new Dimension(searchField.getWidth(),200));
         window.setBackground(Color.white);
-        window.setVisible(true);
-    	window.toFront();
-    	window.pack();
     }
 
     public void printList(List<String> v){
