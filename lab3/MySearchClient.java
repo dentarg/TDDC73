@@ -3,14 +3,13 @@ package lab3;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
-import javax.swing.GroupLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -23,7 +22,7 @@ import lab3.given.SearchClient;
 
 @SuppressWarnings("serial")
 public class MySearchClient extends JComponent implements SearchClient,
-	DocumentListener, MouseListener {
+	DocumentListener, MouseListener, MouseMotionListener {
 	
 	private int maxResults;
 	private long searchId;
@@ -31,6 +30,7 @@ public class MySearchClient extends JComponent implements SearchClient,
 	private JTextField searchField;
 	private List<JLabel> searchResults;
 	private JWindow window;
+	private JLabel lastSelected;
 	
 	public MySearchClient(FemaleNamesSearchProvider f, JTextField searchField,
 			JWindow window) {
@@ -39,6 +39,7 @@ public class MySearchClient extends JComponent implements SearchClient,
 		this.searchResults = new ArrayList<JLabel>();
         this.maxResults = 20;
         this.window = window;
+        this.lastSelected = null;
         
         addMouseListener(this);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -47,10 +48,14 @@ public class MySearchClient extends JComponent implements SearchClient,
 	public void addSearchResult(String searchResult) {
 		JLabel label = new JLabel(searchResult);
 		FontMetrics fm = this.getFontMetrics(searchField.getFont());
+		label.setMinimumSize(new Dimension(searchField.getWidth(), fm.getHeight()));
 		label.setPreferredSize(new Dimension(searchField.getWidth(), fm.getHeight()));
+		label.setOpaque(true);
+		// observers
+		label.addMouseListener(this);
+		label.addMouseMotionListener(this);
 		searchResults.add(label);
 		add(label);
-		label.addMouseListener(this);
 		revalidate(); // update layout and repaint()
 	}
 	
@@ -140,5 +145,22 @@ public class MySearchClient extends JComponent implements SearchClient,
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		Object obj = e.getSource();
+		JLabel label = (JLabel) obj;
+		if(obj.getClass() == new JLabel().getClass()) {
+			if(lastSelected != null) {
+				lastSelected.setBackground(Color.white);
+			}
+			label.setBackground(Color.lightGray);
+			lastSelected = label;
+		}
 	}
 }
